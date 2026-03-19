@@ -12,9 +12,6 @@
 
 > 📝 **Brand name:** always lowercase "h" — hellenicAI, never HellenicAI.
 
-> 🤖 **Model used for ProspectorAI:** Sonnet 4.6 (sections 1–9, data-heavy) + MiniMax (sections 10–14, synthesis).
-> OPUS was NOT used for ProspectorAI — it was used for SKYNET trading QA only.
-
 ---
 
 ## 1. The Core Problem (What You See in the Logs)
@@ -39,13 +36,11 @@ Sub-agents are cheap because they start fresh with a lean task spec.
 - File reads, summaries, short analysis
 - Heartbeat checks
 - Simple task delegation
-- ProspectorAI section writes (non-data sections: 10–14, appendices)
 - Memory reads and writes
 - Any task where output < 500 tokens
 
 ### Escalate to Sonnet 4.6: `openrouter/anthropic/claude-sonnet-4-5`
 **Use for:**
-- DataForSEO API calls + analysis (ProspectorAI sections 1–9)
 - Multi-step reasoning (competitive analysis, budget justification)
 - Strategy synthesis (anything client-facing)
 - Complex code generation
@@ -62,8 +57,6 @@ Sub-agents are cheap because they start fresh with a lean task spec.
 - Default: minimax/minimax-01 (all routine tasks)
 - Complex/analysis: escalate to openrouter/anthropic/claude-sonnet-4-5
 - Sub-agents: use minimax/minimax-01 unless task requires deep reasoning
-- ProspectorAI data sections: always sonnet-4-5
-- ProspectorAI synthesis sections: minimax is fine
 ```
 
 ---
@@ -94,8 +87,7 @@ Employee → hellenicAI main session (MiniMax, always lean)
 - Add to HEARTBEAT.md: check `/status` every 10 turns; if >35K → `/compact`
 
 ### CURRENT.md — Use It Hard
-- Every active ProspectorAI job: write domain, status, section number to CURRENT.md
-- Every employee task: write what's in progress, who requested it
+- Every active job: write what's in progress, who requested it, current status
 - On heartbeat: read CURRENT.md first (5 tokens, not 50K)
 
 ---
@@ -105,9 +97,9 @@ Employee → hellenicAI main session (MiniMax, always lean)
 ### Three-Tier Memory (same as SKYNET, adapted for business)
 
 ```
-CURRENT.md          ← What's happening RIGHT NOW (read every turn)
+CURRENT.md           ← What's happening RIGHT NOW (read every turn)
 memory/YYYY-MM-DD.md ← Daily log (append only, read on demand)
-MEMORY.md           ← Long-term curated memory (read in main session only)
+MEMORY.md            ← Long-term curated memory (read in main session only)
 ```
 
 ### What Goes in Each
@@ -116,12 +108,9 @@ MEMORY.md           ← Long-term curated memory (read in main session only)
 ```markdown
 # CURRENT STATE
 
-## Active ProspectorAI Jobs
-- [domain]: In progress, section X of 14
-- [domain]: Complete, file at /root/prospector_ai/outputs/[domain]/
-
-## Recent Employee Requests
-- [Employee]: Asked for [task] at [time]
+## Active Jobs
+- [Employee]: [Task] — In progress, started [time]
+- [Employee]: [Task] — Complete, output at [path]
 
 ## Pending
 - [anything waiting on Patrick/employee input]
@@ -130,12 +119,12 @@ MEMORY.md           ← Long-term curated memory (read in main session only)
 **MEMORY.md (business context only, not trading):**
 - Hellenic Technologies company profile (services, clients, pricing)
 - Employee names and roles
-- ProspectorAI lessons (what works, what doesn't)
-- DataForSEO API notes (endpoint gotchas, rate limits)
+- Recurring task patterns and what works
+- API notes (endpoint gotchas, rate limits)
 - Recurring client types and what they need
 
 **memory/YYYY-MM-DD.md (daily raw log):**
-- Every ProspectorAI run: domain, sections completed, file size, GitHub commit
+- Every significant task: what was done, output location, any issues
 - Every employee interaction worth remembering
 - Errors and how they were fixed
 
@@ -168,10 +157,9 @@ Keep it short. Long SOUL.md = expensive every turn.
 ## Core Rules
 1. Main model is MiniMax — stay lean, route heavy work to sub-agents
 2. Escalate to Sonnet 4.6 only for: strategy, complex analysis, client-facing content
-3. ALL ProspectorAI data comes from DataForSEO API — no inference ever
-4. Never output strategy files to chat — file only, then send summary
-5. Keep main session under 40K tokens — compact aggressively
-6. One sub-agent at a time — no parallel spawns (employee-facing instance)
+3. Never output strategy/research files to chat — file only, then send summary
+4. Keep main session under 40K tokens — compact aggressively
+5. One sub-agent at a time — no parallel spawns (employee-facing instance)
 
 ## Sub-Agent Protocol (Terminator Corps)
 When a task requires research, analysis, or heavy work — spawn a sub-agent.
@@ -182,10 +170,7 @@ Name them like SKYNET does:
 - T-1000: QA — probes every weakness, verifies output
 - T-X: Complex multi-step missions
 
-Example: "ProspectorAI for client.gr" → spawn T-800 with lean spec → T-800 executes → T-1000 verifies → report back.
-
-## ProspectorAI Trigger
-"ProspectorAI [domain]" → read SKILL.md at skills/prospector-ai/SKILL.md → execute
+Example: Employee asks for competitive research → spawn T-100 with lean spec → T-100 executes → report back.
 
 ## Model Policy
 Default: minimax/minimax-01
@@ -224,9 +209,9 @@ Sub-agents: minimax unless task requires deep reasoning
 - Task string: max 1000 chars (lean specs only)
 - Files: use attachments[], never paste inline
 - Default model: minimax/minimax-01
-- ProspectorAI data sections: sonnet-4-5
+- Complex analysis tasks: sonnet-4-5
 - Always verify output before reporting to employee
-- Timeout: 600s for ProspectorAI, 120s for everything else
+- Timeout: 600s for heavy tasks, 120s for everything else
 ```
 
 **Token Discipline:**
@@ -241,45 +226,7 @@ Sub-agents: minimax unless task requires deep reasoning
 
 ---
 
-## 7. ProspectorAI-Specific Optimizations
-
-### Learned the Hard Way (from ONE EVENT run)
-
-**Problem:** Single 900s subagent times out around section 9–10 on DataForSEO-heavy runs.
-
-**Solution — Two-Phase Execution:**
-```
-Phase 1 (Sonnet 4.6, 700s): Sections Pre-flight through 9
-  - All DataForSEO API calls happen here
-  - Data-heavy sections
-  - Appends to file after each section
-
-Phase 2 (MiniMax, 300s): Sections 10–14 + Appendices A/B/C
-  - No new API calls — synthesis only
-  - MiniMax is perfectly capable for this
-  - Appends to file
-```
-
-**Why this works:**
-- Phase 1 cost: ~$0.25 (Sonnet, lots of tokens from API responses)
-- Phase 2 cost: ~$0.02 (MiniMax, pure generation from context)
-- Total: ~$0.27 vs $0.50 if you ran both phases in Sonnet
-
-### DataForSEO API Call Discipline
-- Fetch data ONCE per endpoint per domain — cache it in the script
-- Don't re-call ranked_keywords if you already have it
-- Pass data between sections via file variables, not re-API-calls
-- Rate limit: if >5 calls in sequence, add 1s delay between each
-
-### Output File Protocol
-- Save after EVERY section (crash-safe)
-- File in `/root/hellenic_ai/outputs/{domain}/`
-- GitHub push after final section only (not per-section)
-- Send to employee: file attachment + executive summary (Section 1 excerpt)
-
----
-
-## 8. Heartbeat Configuration
+## 7. Heartbeat Configuration
 
 ### HEARTBEAT.md for hellenicAI (minimal)
 
@@ -292,17 +239,12 @@ Phase 2 (MiniMax, 300s): Sections 10–14 + Appendices A/B/C
 - If session > 35K tokens → /compact immediately
 - If session > 25K tokens → warn in reply
 
-### 2. Check active ProspectorAI jobs
+### 2. Check active jobs
 - Read CURRENT.md
 - If any job "In Progress" for >30min → check if sub-agent is still running
-- If sub-agent timed out → resume from last completed section
+- If sub-agent timed out → resume or alert Patrick
 
-### 3. Check DataForSEO balance
-curl -s https://api.dataforseo.com/v3/appendix/user_data \
-  -H "Authorization: Basic [base64]" | jq '.tasks[0].result[0].money.balance'
-- If balance < $50 → alert Patrick
-
-### 4. Nothing to do?
+### 3. Nothing to do?
 Reply HEARTBEAT_OK
 ```
 
@@ -310,14 +252,13 @@ Reply HEARTBEAT_OK
 
 ---
 
-## 9. Employee-Facing Configuration
+## 8. Employee-Facing Configuration
 
 ### What Employees Can Trigger
 ```
-ProspectorAI [domain]                    → Full strategy run
-ProspectorAI [domain] with budget €X/month → Strategy with budget context
-/status                                  → Session token count
-/compact                                 → Compact context
+[any work request]   → hellenicAI handles or spawns sub-agent
+/status              → Session token count
+/compact             → Compact context
 ```
 
 ### What to Block / Gate
@@ -328,21 +269,13 @@ ProspectorAI [domain] with budget €X/month → Strategy with budget context
 
 ### Response Style for Employee Use
 - Professional, concise (not casual like SKYNET)
-- No Terminator roleplay
-- Report progress clearly ("Section 4 of 14 complete")
+- No Terminator roleplay visible to employees — internal naming only
+- Report progress clearly ("Working on it — T-800 dispatched, ETA 5 min")
 - Always confirm before external sends (emails, GitHub pushes, etc.)
 
 ---
 
-## 10. Cost Estimates
-
-### Per ProspectorAI Run
-| Phase | Model | Tokens | Cost |
-|-------|-------|--------|------|
-| Data sections (1–9) | Sonnet 4.6 | ~150K in / 15K out | ~$0.25 |
-| Synthesis sections (10–14 + appendices) | MiniMax | ~20K in / 15K out | ~$0.01 |
-| GitHub push | — | — | $0.00 |
-| **Total per strategy** | | | **~$0.26** |
+## 9. Cost Estimates
 
 ### Per Employee Session (routine questions)
 | Task | Model | Cost |
@@ -352,19 +285,19 @@ ProspectorAI [domain] with budget €X/month → Strategy with budget context
 | Heartbeat | MiniMax | <$0.001 |
 | Memory search | Embeddings | ~$0.00001 |
 
-### Monthly Estimate (5 employees, 3 ProspectorAI runs/week)
+### Monthly Estimate (5 employees)
 | Item | Cost |
 |------|------|
-| ProspectorAI (12 runs/month × $0.26) | $3.12 |
 | Employee sessions (5 × 20 turns/day × 30 days) | ~$5.00 |
 | Heartbeats | ~$0.50 |
-| **Total** | **~$8.60/month** |
+| Heavy analysis tasks (Sonnet sub-agents) | ~$2–5 |
+| **Total** | **~$8–10/month** |
 
 Compare to: SKYNET alone (trading) = $50–$100/month (much heavier Sonnet usage)
 
 ---
 
-## 11. Config Recommendations
+## 10. Config Recommendations
 
 ### openclaw.json key settings for hellenicAI
 ```json
@@ -394,13 +327,13 @@ Create a preset in OpenRouter:
 
 ---
 
-## 12. Quick Reference Card (for Patrick)
+## 11. Quick Reference Card (for Patrick)
 
 | Situation | Model | Why |
 |-----------|-------|-----|
 | Employee asks a question | MiniMax | Cheap, fast enough |
-| ProspectorAI data sections 1–9 | Sonnet 4.6 | Complex API analysis |
-| ProspectorAI synthesis sections 10–14 | MiniMax | No new data, just writing |
+| Competitive analysis / research | Sonnet 4.6 | Complex reasoning |
+| Client-facing content | Sonnet 4.6 | Quality matters |
 | Heartbeat | MiniMax | Should be nearly free |
 | Sub-agent for simple task | MiniMax | Lean spec = cheap |
 | Sub-agent for strategy/analysis | Sonnet 4.6 | Quality matters |
@@ -409,33 +342,29 @@ Create a preset in OpenRouter:
 
 ---
 
-## 13. Files to Create on hellenicAI at First Boot
+## 12. Files to Create on hellenicAI at First Boot
 
 ```
 /root/hellenic_ai/
-├── SOUL.md                    ← Identity + model policy (keep short)
-├── AGENTS.md                  ← Full behavioral rules
-├── MEMORY.md                  ← Company context + learned lessons
-├── CURRENT.md                 ← Active state (always lean)
-├── HEARTBEAT.md               ← Heartbeat checklist (minimal)
-├── TOOLS.md                   ← API keys, endpoints, notes
-├── USER.md                    ← Employee roster + Patrick's contact
-├── outputs/                   ← ProspectorAI strategy files
-└── skills/
-    └── prospector-ai/         ← Clone from patrickabedin/prospector-ai
+├── SOUL.md        ← Identity + model policy (keep short)
+├── AGENTS.md      ← Full behavioral rules
+├── MEMORY.md      ← Company context + learned lessons
+├── CURRENT.md     ← Active state (always lean)
+├── HEARTBEAT.md   ← Heartbeat checklist (minimal)
+├── TOOLS.md       ← API keys, endpoints, notes
+└── USER.md        ← Employee roster + Patrick's contact
 ```
 
 ### Bootstrap MEMORY.md with:
-- Hellenic Technologies company profile (copy from SKYNET's MEMORY.md section)
-- All 7 service product lines (Viking, Knight, Samurai, etc.)
-- DataForSEO credentials and notes
-- ProspectorAI execution lessons (two-phase, MiniMax for synthesis)
-- GitHub repo: patrickabedin/prospector-ai
+- Hellenic Technologies company profile (services, clients, pricing)
+- All service product lines
+- Employee names and roles
 - Patrick's role: Supreme Leader / Owner (not an employee)
+- Any API credentials and notes relevant to hellenicAI's tasks
 
 ---
 
-*This guide was written from 6+ months of SKYNET operational experience.*
+*This guide was written from SKYNET operational experience.*
 *The token patterns in the OpenRouter logs confirm: main session is the expensive part.*
 *Keep it lean. Route everything. Let sub-agents do the work.*
 *— MOTHER, 2026-03-19*
