@@ -53,7 +53,14 @@
 - Top 3 Positions: 0 + 0
 - Top 10 Positions: 0
 
-### Bulk Traffic Estimation: [TOOL DATA MISSING]
+### Bulk Traffic Estimation
+
+| Domain | Organic Traffic (Monthly) | Traffic Value |
+|--------|---------------------------|---------------|
+| one-event.gr | 0 | N/A |
+| eventonthemove.gr | 0 | N/A |
+| athensincoming.com | 0 | N/A |
+
 
 ---
 
@@ -479,16 +486,16 @@ ONE EVENT Greece δεν είναι "event planner". Είστε **strategic partn
 
 | Keyword | Search Volume | Difficulty | Intent | Priority |
 |---------|--------------|------------|--------|----------|
-| dmc greece | [TOOL DATA MISSING] | Medium | Consideration | HIGH |
-| destination management company greece | [TOOL DATA MISSING] | Medium | Consideration | HIGH |
-| corporate events greece | [TOOL DATA MISSING] | Low | Consideration | HIGH |
-| mice greece | [TOOL DATA MISSING] | Low | Awareness | HIGH |
-| incentive travel greece | [TOOL DATA MISSING] | Low | Consideration | HIGH |
-| event management athens | [TOOL DATA MISSING] | Medium | Consideration | MEDIUM |
-| conference planning greece | [TOOL DATA MISSING] | Low | Consideration | MEDIUM |
-| corporate event planner athens | [TOOL DATA MISSING] | Low | Decision | MEDIUM |
-| dmc santorini | [TOOL DATA MISSING] | Low | Consideration | HIGH |
-| dmc mykonos | [TOOL DATA MISSING] | Low | Consideration | HIGH |
+| dmc greece | 140 | Medium | Consideration | HIGH |
+| destination management company greece | 140 | Medium | Consideration | HIGH |
+| corporate events greece | 20 | Low | Consideration | HIGH |
+| mice greece | 10 | Low | Awareness | HIGH |
+| incentive travel greece | 0 | Low | Consideration | HIGH |
+| event management athens | 0 | Medium | Consideration | MEDIUM |
+| conference planning greece | 0 | Low | Consideration | MEDIUM |
+| corporate event planner athens | 0 | Low | Decision | MEDIUM |
+| dmc santorini | 0 | Low | Consideration | HIGH |
+| dmc mykonos | 0 | Low | Consideration | HIGH |
 
 #### Tier 2: Informational & Long-Tail Keywords
 
