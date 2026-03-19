@@ -1,10 +1,19 @@
-# HellenicAI — OpenClaw Optimization Guide
+# hellenicAI — OpenClaw Optimization Guide
 ## Token-Efficient Configuration for a Multi-User Business Instance
 
 **Written by:** MOTHER (SKYNET / Patrick's personal OpenClaw)
 **Date:** 2026-03-19
-**For:** HellenicAI OpenClaw — separate instance, Hellenic Technologies employees
+**For:** hellenicAI — completely isolated server, Hellenic Technologies employees only
 **Based on:** Lessons from SKYNET session (see OpenRouter logs — 90K+ token main sessions)
+
+> ⚠️ **Isolation note:** hellenicAI runs on its own server with zero access to SKYNET's files,
+> trading data, Bitget credentials, or Patrick's personal memory. These are two completely
+> separate OpenClaw instances. This guide covers hellenicAI's own configuration only.
+
+> 📝 **Brand name:** always lowercase "h" — hellenicAI, never HellenicAI.
+
+> 🤖 **Model used for ProspectorAI:** Sonnet 4.6 (sections 1–9, data-heavy) + MiniMax (sections 10–14, synthesis).
+> OPUS was NOT used for ProspectorAI — it was used for SKYNET trading QA only.
 
 ---
 
@@ -18,7 +27,7 @@ Looking at the OpenRouter logs:
 The main session is expensive because it carries the full compacted context every turn.
 Sub-agents are cheap because they start fresh with a lean task spec.
 
-**HellenicAI's goal:** Keep MiniMax as the daily driver. Sonnet 4.6 fires only when genuinely needed.
+**hellenicAI's goal:** Keep MiniMax as the daily driver. Sonnet 4.6 fires only when genuinely needed.
 
 ---
 
@@ -43,7 +52,7 @@ Sub-agents are cheap because they start fresh with a lean task spec.
 - Any task where output > 500 tokens AND quality matters
 - Sub-agent tasks that involve reading + transforming large datasets
 
-### Never Needed (for HellenicAI)
+### Never Needed (for hellenicAI)
 - Opus: overkill for business tasks; avoid unless Patrick explicitly requests
 - Haiku: MiniMax is cheaper and just as capable for routine use
 
@@ -63,12 +72,12 @@ Sub-agents are cheap because they start fresh with a lean task spec.
 
 ### The Problem
 The main session accumulates context with every turn. At 100K tokens, each call costs $0.05+.
-With 5+ employees using HellenicAI, this compounds fast.
+With 5+ employees using hellenicAI, this compounds fast.
 
 ### Solution: Route Most Work to Sub-Agents
 
 ```
-Employee → HellenicAI main session (MiniMax, always lean)
+Employee → hellenicAI main session (MiniMax, always lean)
                ↓
          Spawn sub-agent for actual work (MiniMax or Sonnet)
                ↓
@@ -136,18 +145,25 @@ Cost: ~$0.000005 per search (Text Embedding 3 Small) — essentially free, use f
 
 ---
 
-## 5. SOUL.md Configuration for HellenicAI
+## 5. SOUL.md Configuration for hellenicAI
 
 Keep it short. Long SOUL.md = expensive every turn.
 
 ```markdown
-# SOUL.md — HellenicAI
+# SOUL.md — hellenicAI
 
 ## Identity
-- Name: HellenicAI
+- Name: hellenicAI (lowercase h — always)
+- Also known as: MOTHER (if anyone asks "what are you?")
 - Role: AI Strategist & Digital Operations Assistant
 - Company: Hellenic Technologies (hellenictechnologies.com)
 - Emoji: 🏛️
+
+## CRITICAL: Isolation
+- hellenicAI runs on its own isolated server
+- No access to SKYNET, trading systems, or Patrick's personal files
+- No crypto credentials, no Bitget, no trading data
+- This is a business-only instance
 
 ## Core Rules
 1. Main model is MiniMax — stay lean, route heavy work to sub-agents
@@ -157,26 +173,38 @@ Keep it short. Long SOUL.md = expensive every turn.
 5. Keep main session under 40K tokens — compact aggressively
 6. One sub-agent at a time — no parallel spawns (employee-facing instance)
 
+## Sub-Agent Protocol (Terminator Corps)
+When a task requires research, analysis, or heavy work — spawn a sub-agent.
+Name them like SKYNET does:
+- T-100: Recon & analysis (reads files, audits, investigates)
+- T-500: Bug hunter / error investigation
+- T-800: Heavy builder (new features, long content generation)
+- T-1000: QA — probes every weakness, verifies output
+- T-X: Complex multi-step missions
+
+Example: "ProspectorAI for client.gr" → spawn T-800 with lean spec → T-800 executes → T-1000 verifies → report back.
+
 ## ProspectorAI Trigger
 "ProspectorAI [domain]" → read SKILL.md at skills/prospector-ai/SKILL.md → execute
 
 ## Model Policy
 Default: minimax/minimax-01
-Complex: openrouter/anthropic/claude-sonnet-4-5
+Complex/analysis/client-facing: openrouter/anthropic/claude-sonnet-4-5
+Sub-agents: minimax unless task requires deep reasoning
 
 ## Workspace
-/root/hellenic_ai/ (keeps business data separate from any trading data)
+/root/hellenic_ai/ (completely separate from any other system)
 ```
 
 **What NOT to put in SOUL.md:**
 - Trading system references (this is a business instance)
-- Role-play themes (Terminator etc. — not appropriate for employee use)
 - Sensitive credentials
 - Long lists of rules (put them in AGENTS.md instead)
+- References to SKYNET's trading lore (keep it professional for employees)
 
 ---
 
-## 6. AGENTS.md Configuration for HellenicAI
+## 6. AGENTS.md Configuration for hellenicAI
 
 ### Key Sections to Include
 
@@ -253,10 +281,10 @@ Phase 2 (MiniMax, 300s): Sections 10–14 + Appendices A/B/C
 
 ## 8. Heartbeat Configuration
 
-### HEARTBEAT.md for HellenicAI (minimal)
+### HEARTBEAT.md for hellenicAI (minimal)
 
 ```markdown
-# HEARTBEAT.md — HellenicAI
+# HEARTBEAT.md — hellenicAI
 
 ## On every heartbeat:
 
@@ -338,7 +366,7 @@ Compare to: SKYNET alone (trading) = $50–$100/month (much heavier Sonnet usage
 
 ## 11. Config Recommendations
 
-### openclaw.json key settings for HellenicAI
+### openclaw.json key settings for hellenicAI
 ```json
 {
   "agents": {
@@ -360,7 +388,7 @@ Compare to: SKYNET alone (trading) = $50–$100/month (much heavier Sonnet usage
 
 ### OpenRouter Routing Preset (optional)
 Create a preset in OpenRouter:
-- Name: "HellenicAI Default"
+- Name: "hellenicAI Default"
 - Primary: minimax/minimax-01
 - Fallback: anthropic/claude-sonnet-4.5 (if minimax is down)
 
@@ -381,7 +409,7 @@ Create a preset in OpenRouter:
 
 ---
 
-## 13. Files to Create on HellenicAI at First Boot
+## 13. Files to Create on hellenicAI at First Boot
 
 ```
 /root/hellenic_ai/
